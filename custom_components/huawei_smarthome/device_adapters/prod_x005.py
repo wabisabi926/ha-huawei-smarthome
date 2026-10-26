@@ -18,6 +18,7 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
+from ..const import ATTR_COMMAND, ATTR_SILENT, SERVICE_VOICE_COMMAND
 from .api import EntitySpec
 from .context import DeviceContext
 
@@ -83,10 +84,41 @@ async def _speak(context: DeviceContext, data: Mapping[str, Any]) -> None:
     await context.async_send_service("communication", {"directive": directive})
 
 
+async def _voice_command(
+    context: DeviceContext,
+    data: Mapping[str, Any],
+) -> None:
+    """Send one natural-language command through the speaker assistant."""
+
+    command = data.get(ATTR_COMMAND)
+    if not isinstance(command, str) or not command.strip():
+        raise ValueError("voice command must be a non-empty string")
+    silent = data.get(ATTR_SILENT, True)
+    if not isinstance(silent, bool):
+        raise ValueError("voice command silent must be a boolean")
+    content = json.dumps(
+        {
+            "asr": command.strip(),
+            "source": "smarthome",
+            "noVui": int(silent),
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    await context.async_send_service("speakerIfttt", {"content": content})
+
+
 class ProductX005Adapter:
     """X005 华为 AI 音箱 2 适配器。"""
 
     prod_id = "X005"
+
+    def service_actions(self, context: DeviceContext) -> Mapping[str, Any]:
+        """Declare integration services supported by this product."""
+
+        if not context.has_service("speakerIfttt"):
+            return {}
+        return {SERVICE_VOICE_COMMAND: _voice_command}
 
     def entities(self, context: DeviceContext) -> tuple[EntitySpec, ...]:
         if context.profile is None:
