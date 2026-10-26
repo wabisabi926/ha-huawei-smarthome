@@ -5,6 +5,10 @@ from __future__ import annotations
 DOMAIN = "huawei_smarthome"
 MANUFACTURER = "Huawei SmartHome"
 
+SERVICE_VOICE_COMMAND = "voice_command"
+ATTR_COMMAND = "command"
+ATTR_SILENT = "silent"
+
 CONF_ACCOUNT = "account"
 CONF_USER_ID = "user_id"
 CONF_IDENTITY_FINGERPRINT = "identity_fingerprint"
