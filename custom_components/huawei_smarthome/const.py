@@ -58,6 +58,7 @@ PLATFORMS = (
     "water_heater",
     "lock",
     "media_player",
+    "notify",
     "text",
 )
 UNASSIGNED_HOME_ID = "__unassigned__"
